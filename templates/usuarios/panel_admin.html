@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>🎓 Gestión - Ventas Con Propósito</h1>
+            <p class="text-muted">Gestiona tus cursos, exámenes y la tienda desde este centro de comando.</p>
+        </div>
+        <a href="{% url 'crear_modulo' %}" class="btn btn-primary fw-bold shadow-sm">
+            <i class="bi bi-plus-circle"></i> + Nuevo Módulo
+        </a>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card bg-info text-white text-center p-3 shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <h3 class="display-4 fw-bold">{{ total_usuarios }}</h3>
+                    <p class="mb-0 fs-5">Estudiantes Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark text-center p-3 shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <h3 class="display-4 fw-bold">{{ modulos.count }}</h3>
+                    <p class="mb-0 fs-5">Módulos Creados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white text-center p-3 shadow-sm h-100 border-0">
+                <div class="card-body">
+                    <h3 class="display-4 fw-bold">{{ productos.count }}</h3>
+                    <p class="mb-0 fs-5">Productos en Tienda</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="border-bottom pb-2 mb-3 text-primary">📚 Contenido del Curso</h4>
+            
+            {% for modulo in modulos %}
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ modulo.titulo }}</h5>
+                    <div>
+                        <a href="{% url 'agregar_pregunta_examen' modulo.id %}" class="btn btn-sm btn-warning text-dark fw-bold me-2" title="Agregar preguntas al examen final del módulo">
+                            📝 + Examen Final
+                        </a>
+                        <a href="{% url 'crear_leccion' modulo.id %}" class="btn btn-sm btn-light">
+                            📺 + Agregar Video
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <p class="text-muted fst-italic">{{ modulo.descripcion|default:"Sin descripción" }}</p>
+                    
+                    <h6 class="fw-bold mt-3 text-secondary">Lecciones (Videos):</h6>
+                    {% if modulo.lecciones.all %}
+                        <div class="list-group mb-3">
+                            {% for leccion in modulo.lecciones.all %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center border-start-0 border-end-0">
+                                <div>
+                                    <span class="fw-bold">🎥 {{ leccion.titulo }}</span> 
+                                    <span class="text-muted small">({{ leccion.puntos_recompensa }} pts)</span>
+                                    <br>
+                                    <small class="text-primary fst-italic" style="font-size: 0.85rem;">
+                                        👉 {{ leccion.preguntas.count }} preguntas de quiz cargadas
+                                    </small>
+                                </div>
+                                
+                                <div class="d-flex align-items-center">
+                                    <a href="{% url 'agregar_pregunta_test' leccion.id %}" class="btn btn-sm btn-outline-primary me-3" title="Agregar pregunta al test de este video">
+                                        ➕ Quiz Video
+                                    </a>
+                                    <span class="badge bg-success rounded-pill">Activo</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light border py-2 small text-muted">
+                            ⚠️ Este módulo no tiene videos todavía.
+                        </div>
+                    {% endif %}
+
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded">
+                        <div>
+                            <strong>Estado del Examen Final del Módulo:</strong>
+                            <small class="text-muted ms-2">({{ modulo.preguntas_examen.count }} preguntas cargadas)</small>
+                        </div>
+                        {% if modulo.preguntas_examen.count > 0 %}
+                            <span class="badge bg-success p-2">✅ Examen Listo</span>
+                        {% else %}
+                            <span class="badge bg-danger p-2">❌ Sin Examen</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <div class="alert alert-info text-center p-5">
+                    <h4>No hay contenido educativo.</h4>
+                    <p>Comienza creando el primer módulo para tus estudiantes.</p>
+                    <a href="{% url 'crear_modulo' %}" class="btn btn-primary">Crear Primer Módulo</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="accordion shadow-sm" id="accordionProductos">
+                <div class="accordion-item border-0">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-secondary text-white fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                            🛒 Gestión de Tienda / Fachada (Clic para desplegar)
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionProductos">
+                        <div class="accordion-body">
+                            
+                            <div class="d-flex mb-3 p-3 bg-light rounded border">
+                                <span class="align-self-center me-3 fw-bold text-muted">Acciones:</span>
+                                <a href="{% url 'crear_categoria' %}" class="btn btn-info text-white me-2">
+                                    📂 Nueva Categoría
+                                </a>
+                                <a href="{% url 'crear_producto' %}" class="btn btn-outline-dark">
+                                    👕 Nuevo Producto
+                                </a>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Imagen</th>
+                                            <th>Nombre</th>
+                                            <th>Categoría</th>
+                                            <th>Precio</th>
+                                            <th>Stock</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for p in productos %}
+                                        <tr>
+                                            <td style="width: 60px;">
+                                                {% if p.imagen %}
+                                                    <img src="{{ p.imagen.url }}" class="rounded shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                                                {% else %}
+                                                    <span class="text-muted small">Sin foto</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="fw-bold">{{ p.nombre }}</td>
+                                            <td>
+                                                {% if p.categoria %}
+                                                    <span class="badge bg-secondary">{{ p.categoria.nombre }}</span>
+                                                {% else %}
+                                                    <span class="text-muted fst-italic">Sin categoría</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>${{ p.precio }}</td>
+                                            <td>
+                                                {% if p.stock > 0 %}
+                                                    <span class="text-success fw-bold">{{ p.stock }} u.</span>
+                                                {% else %}
+                                                    <span class="text-danger fw-bold">Agotado</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="{% url 'eliminar_producto' p.id %}" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('¿Seguro que deseas eliminar {{ p.nombre }}?');">
+                                                    🗑️ Eliminar
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">
+                                                    La tienda está vacía. ¡Agrega categorías y productos arriba!
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

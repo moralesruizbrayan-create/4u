@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <a href="{% url 'foro' %}" class="btn btn-outline-secondary mb-4 btn-sm">
+        <i class="bi bi-arrow-left"></i> Volver al Foro
+    </a>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h2 class="fw-bold mb-0" style="color: var(--brand-blue);">{{ tema.titulo }}</h2>
+            <small class="text-muted">Publicado por <strong>{{ tema.autor.username }}</strong> el {{ tema.fecha_creacion|date:"d M Y, H:i" }}</small>
+        </div>
+        <div class="card-body p-4">
+            <p class="fs-5">{{ tema.contenido|linebreaks }}</p>
+        </div>
+    </div>
+
+    <h4 class="mb-4 fw-bold text-secondary">Respuestas ({{ comentarios.count }})</h4>
+
+    {% for comentario in comentarios %}
+        <div class="d-flex mb-4">
+            <div class="flex-shrink-0">
+                <div class="bg-light rounded-circle d-flex justify-content-center align-items-center fw-bold text-secondary" style="width: 50px; height: 50px;">
+                    {{ comentario.autor.username.0|upper }}
+                </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-primary">{{ comentario.autor.username }}</strong>
+                            <small class="text-muted">{{ comentario.fecha_creacion|timesince }}</small>
+                        </div>
+                        <p class="mb-0 mt-1">{{ comentario.contenido }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted fst-italic mb-5">Nadie ha respondido aún. ¡Sé el primero!</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <div class="card border-0 shadow-sm bg-light mt-4">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3"><i class="bi bi-reply-fill"></i> Escribir una respuesta</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.contenido }}
+                    <div class="d-flex justify-content-end mt-2">
+                        <button type="submit" class="btn btn-success fw-bold">Enviar Respuesta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            Debes <a href="{% url 'login' %}" class="fw-bold">iniciar sesión</a> para participar en la conversación.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

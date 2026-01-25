@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="mb-3">{{ leccion.titulo }}</h2>
+            <div class="ratio ratio-16x9 mb-4 shadow">
+                <video controls>
+                    <source src="{{ leccion.video_archivo.url }}" type="video/mp4">
+                    Tu navegador no soporta videos.
+                </video>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    Evaluación de Conocimiento
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for pregunta in preguntas %}
+                            <div class="mb-4">
+                                <p class="fw-bold">{{ forloop.counter }}. {{ pregunta.texto }}</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.id }}" value="a" required>
+                                    <label class="form-check-label">{{ pregunta.opcion_a }}</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.id }}" value="b">
+                                    <label class="form-check-label">{{ pregunta.opcion_b }}</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.id }}" value="c">
+                                    <label class="form-check-label">{{ pregunta.opcion_c }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <button type="submit" class="btn btn-success w-100">Enviar Respuestas</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
